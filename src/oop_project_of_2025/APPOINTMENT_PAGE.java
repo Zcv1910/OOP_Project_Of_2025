@@ -553,40 +553,61 @@ public class APPOINTMENT_PAGE extends javax.swing.JFrame {
     }//GEN-LAST:event_Booking_ReasonActionPerformed
 
 
-private void loadAppointmentsFromFile() {
+private void saveAppointmentsToFile() {
     try {
-        File file = new File("C:\\Users\\peter\\Documents\\NetBeansProjects\\OOP_PROJECT_OF_2025\\src\\oop_project_of_2025\\APPOINTMENT.txt");
-
-        // ✅ FIX: Only create parent folders if parent exists (avoid NullPointer)
+        File file = new File("APPOINTMENT.txt");
         File parent = file.getParentFile();
         if (parent != null && !parent.exists()) {
             parent.mkdirs();
         }
 
-        // If the file doesn't exist, create it and stop reading
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            DefaultTableModel model = (DefaultTableModel) Appointment_table.getModel();
+            for (int i = 0; i < model.getRowCount(); i++) {
+                String date = model.getValueAt(i, 0).toString();
+                String time = model.getValueAt(i, 1).toString();
+                String lecturer = model.getValueAt(i, 2).toString();
+                String reason = model.getValueAt(i, 3).toString();
+                writer.write(date + "," + time + "," + lecturer + "," + reason + "," + "Pending");
+                writer.newLine();
+            }
+        }
+        System.out.println("Appointments saved successfully!");
+    } catch (IOException e) {
+        JOptionPane.showMessageDialog(this, "Error saving appointments!\n" + e.getMessage(),
+                "File Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+private void loadAppointmentsFromFile() {
+    try {
+        File file = new File("APPOINTMENT.txt");
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
+
         if (!file.exists()) {
             file.createNewFile();
             System.out.println("Created new appointment file: " + file.getAbsolutePath());
             return;
         }
 
-        // Load file content into table
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             DefaultTableModel model = (DefaultTableModel) Appointment_table.getModel();
-            model.setRowCount(0); // clear existing rows
+            model.setRowCount(0);
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
-                if (data.length == 4) {
-                    model.addRow(data);
+                if (data.length >= 4) {
+                    model.addRow(new Object[]{data[0], data[1], data[2], data[3]});
                 }
             }
-            System.out.println("Appointments loaded successfully!");
         }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             DefaultTableModel model = (DefaultTableModel) Appointment_table1.getModel();
-            model.setRowCount(0); // clear existing rows
+            model.setRowCount(0);
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
@@ -594,41 +615,11 @@ private void loadAppointmentsFromFile() {
                     model.addRow(data);
                 }
             }
-            System.out.println("Appointments loaded successfully!");
         }
-        
+
+        System.out.println("Appointments loaded successfully!");
     } catch (IOException e) {
         JOptionPane.showMessageDialog(this, "Error loading appointments!\n" + e.getMessage(),
-                "File Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
-
-private void saveAppointmentsToFile() {
-    try {
-        File file = new File("C:\\Users\\peter\\Documents\\NetBeansProjects\\OOP_PROJECT_OF_2025\\src\\oop_project_of_2025\\APPOINTMENT.txt");
-
-        // ✅ FIX: Only create parent folders if parent exists (avoid NullPointer)
-        File parent = file.getParentFile();
-        if (parent != null && !parent.exists()) {
-            parent.mkdirs();
-        }
-
-        // Write table contents to the file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            DefaultTableModel model = (DefaultTableModel) Appointment_table.getModel();
-            for (int i = 0; i < model.getRowCount(); i++) {
-                String date = model.getValueAt(i, 0).toString();
-                String time = model.getValueAt(i, 1).toString();
-                String lecturer = model.getValueAt(i, 2).toString();
-                String Reason = model.getValueAt(i, 3).toString();
-                writer.write(date + "," + time + "," + lecturer + "," + Reason + "," + "Pending");
-                writer.newLine();
-            }
-        }
-        System.out.println("Appointments saved successfully!");
-
-    } catch (IOException e) {
-        JOptionPane.showMessageDialog(this, "Error saving appointments!\n" + e.getMessage(),
                 "File Error", JOptionPane.ERROR_MESSAGE);
     }
 }
